@@ -1,42 +1,28 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flame/game.dart';
+import 'package:flame_rive/flame_rive.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:livegame/player.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  RiveFile riveFile = await RiveFile.asset('assets/rive/rive.riv');
+  runApp(GameWidget(game: SumoGame(riveFile: riveFile),));
 }
 
-class MyApp extends StatefulWidget {
+class SumoGame extends FlameGame{
+  final databaseReference = FirebaseDatabase.instance.ref();
+  final RiveFile riveFile;
+  SumoGame({required this.riveFile});
+  late Player player;
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  String count = '0';
-  @override
-  void initState() {
-      var db = FirebaseDatabase.instance.ref().child('count');
-      db.onValue.listen((event) {
-        setState(() {
-          count = event.snapshot.value.toString();
-        });
-      });
-    super.initState();
-  }
-
-  final Future<FirebaseApp> fapp = Firebase.initializeApp();
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text("Real time count : $count"),
-        ),
-      ),
-    );
+  Future<void> onLoad() async{
+    player = Player(playerArtboard: riveFile.artboardByName('Player')!);
+    add(player);
   }
 }
