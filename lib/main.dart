@@ -22,7 +22,8 @@ class SumoGame extends FlameGame{
   late Player player;
   @override
   Future<void> onLoad() async{
-    player = Player(playerArtboard: riveFile.artboardByName('Player')!);
+    player = Player(playerArtboard: riveFile.artboardByName('Player')!
+    );
     add(player);
   }
 }
